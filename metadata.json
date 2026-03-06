@@ -1,0 +1,5 @@
+{
+  "name": "一盤散沙",
+  "description": "An application to upload a TXT file with specific date formats, split it by day or month, download the segments, and generate an AI-powered summary for any selected segment using a custom prompt.",
+  "requestFramePermissions": []
+}
