@@ -76,7 +76,7 @@ const ActionPanel: React.FC<ActionPanelProps> = ({
 
   return (
     <div className="bg-brand-surface rounded-lg shadow-lg p-6 flex flex-col h-full">
-      <h2 className="text-xl font-semibold text-white mb-4">4. Analyze & Download</h2>
+      <h2 className="text-xl font-semibold text-white mb-4">Analyze & Download</h2>
       
       {!fileIsSelected && (
         <div className="flex-grow flex items-center justify-center text-center text-brand-text-secondary">
