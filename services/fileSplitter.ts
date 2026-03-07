@@ -44,7 +44,7 @@ export const splitText = (content: string, by: SplitType): SplitFile[] => {
     };
 
     chunks.forEach(chunk => {
-      const [year, month, day] = chunk.date.split('.').map(Number);
+      const [year, month, day] = chunk.date.split(/[.\/-]/).map(Number);
       const currentDate = new Date(year, month - 1, day);
       const weekStartDate = getWeekStart(currentDate);
       const weekKey = weekStartDate.toISOString().split('T')[0];

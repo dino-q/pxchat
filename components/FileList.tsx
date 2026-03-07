@@ -12,13 +12,16 @@ const FileList: React.FC<FileListProps> = ({ files, selectedFiles, onSelect }) =
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeYear, setActiveYear] = useState<string | null>(null);
   const [filter, setFilter] = useState<string | null>(null); // e.g., "2025-08"
+  const [displayCount, setDisplayCount] = useState(5);
 
   const dateStructure = useMemo(() => {
     const structure: { [year: string]: Set<string> } = {};
     files.forEach(file => {
-      const match = file.filename.match(/^(\d{4}-\d{2})/);
+      // Support day/month filenames (YYYY-MM-...) and week filenames (Week-YYYY-MM-DD-to-...)
+      const match = file.filename.match(/^(?:Week-)?(\d{4})-(\d{2})/);
       if (match) {
-        const [year, month] = match[0].split('-');
+        const year = match[1];
+        const month = match[2];
          if (year && month) {
           if (!structure[year]) {
             structure[year] = new Set();
@@ -38,21 +41,26 @@ const FileList: React.FC<FileListProps> = ({ files, selectedFiles, onSelect }) =
 
   const filteredFiles = useMemo(() => {
     if (!filter) return files;
-    return files.filter(file => file.filename.startsWith(filter));
+    return files.filter(file => {
+      // Match day/month: "2025-08-01.txt" and week: "Week-2025-08-01-to-..."
+      return file.filename.startsWith(filter) || file.filename.startsWith(`Week-${filter}`);
+    });
   }, [files, filter]);
 
-  const displayedFiles = filteredFiles.slice(0, 5);
-  const hasMore = filteredFiles.length > 5;
+  const displayedFiles = filteredFiles.slice(0, displayCount);
+  const hasMore = filteredFiles.length > displayCount;
   const isFiltered = filter !== null;
 
   const handleSetFilter = (year: string, month: string) => {
     setFilter(`${year}-${month}`);
+    setDisplayCount(5);
     setIsModalOpen(false);
     setActiveYear(null);
   };
-  
+
   const handleClearFilter = () => {
     setFilter(null);
+    setDisplayCount(5);
     setIsModalOpen(false);
     setActiveYear(null);
   };
@@ -80,7 +88,7 @@ const FileList: React.FC<FileListProps> = ({ files, selectedFiles, onSelect }) =
                     </button>
                 )}
                  <button onClick={() => setIsModalOpen(true)} className="text-sm text-brand-secondary hover:underline font-semibold">
-                    More...
+                    篩選...
                  </button>
             </div>
         )}
@@ -103,8 +111,23 @@ const FileList: React.FC<FileListProps> = ({ files, selectedFiles, onSelect }) =
               </li>
             ))}
             {hasMore && (
-                <li className="text-center text-xs text-brand-text-secondary pt-2">
-                    ... and {filteredFiles.length - 5} more. Use "More..." to filter.
+                <li className="text-center pt-2">
+                    <button
+                      onClick={() => setDisplayCount(prev => prev + 10)}
+                      className="text-sm text-brand-secondary hover:underline font-semibold"
+                    >
+                      顯示更多 ({filteredFiles.length - displayCount} 個)
+                    </button>
+                </li>
+            )}
+            {displayCount > 5 && (
+                <li className="text-center pt-2">
+                    <button
+                      onClick={() => setDisplayCount(5)}
+                      className="text-sm text-brand-text-secondary hover:underline"
+                    >
+                      收起
+                    </button>
                 </li>
             )}
           </ul>
